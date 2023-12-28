@@ -1,8 +1,7 @@
 package com.example.ecommerce.activities;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,107 +12,58 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.ecommerce.R;
 import com.razorpay.Checkout;
-import com.razorpay.PaymentResultListener;
 
-import org.json.JSONObject;
+import java.text.NumberFormat;
+import java.util.Locale;
 
-
-public class PaymentActivity extends AppCompatActivity
-        implements PaymentResultListener
-{
+public class PaymentActivity extends AppCompatActivity {
     double amount = 0.0;
     Toolbar toolbar;
-    TextView subTotal,discount,shipping,total;
+    TextView subTotal, total; // Added declaration for subTotal and total
     Button paymentBtn;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Checkout.preload(getApplicationContext());
         setContentView(R.layout.activity_payment);
-        //Toolbar
-        toolbar = findViewById(R.id.payment_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        // ...
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        amount = getIntent().getDoubleExtra("amount",0.0);
+        amount = getIntent().getDoubleExtra("amount", 0.0);
 
         subTotal = findViewById(R.id.sub_total);
-        discount = findViewById(R.id.textView17);
-        shipping = findViewById(R.id.textView18);
         total = findViewById(R.id.total_amt);
         paymentBtn = findViewById(R.id.pay_btn);
 
-        subTotal.setText(amount+"$");
+        // Format amount to currency for sub_total
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
+        String formattedSubTotal = currencyFormat.format(amount);
+        subTotal.setText(formattedSubTotal);
+
+        // Set total amount to the same as the original amount
+        String formattedTotal = currencyFormat.format(amount);
+        total.setText(formattedTotal);
+
 
         paymentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               paymentMethod();
+                // Mô phỏng hành động "Check Out" - không có thanh toán thực tế
+                simulateCheckout();
             }
         });
-
-
     }
 
-    private void paymentMethod() {
+    private void simulateCheckout() {
+        // Đoạn mã này được thực hiện khi người dùng nhấn vào nút "Check Out"
+        // Ở đây, chúng ta chỉ hiển thị thông báo và không thực hiện thanh toán thực tế
+        Toast.makeText(this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
 
-        Checkout checkout = new Checkout();
-
-        final Activity activity = PaymentActivity.this;
-
-        try {
-            JSONObject options = new JSONObject();
-            //Set Company Name
-            options.put("name", "My E-Commerce App");
-            //Ref no
-            options.put("description", "Reference No. #123456");
-            //Image to be display
-            options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
-            //options.put("order_id", "order_9A33XWu170gUtm");
-            // Currency type
-            options.put("currency", "USD");
-            //double total = Double.parseDouble(mAmountText.getText().toString());
-            //multiply with 100 to get exact amount in rupee
-            amount = amount * 100;
-            //amount
-            options.put("amount", amount);
-            JSONObject preFill = new JSONObject();
-            //email
-            preFill.put("email", "developer.kharag@gmail.com");
-            //contact
-            preFill.put("contact", "7489347378");
-
-            options.put("prefill", preFill);
-            checkout.open(activity, options);
-        } catch (Exception e) {
-            Log.e("TAG", "Error in starting Razorpay Checkout", e);
-        }
+        // Quay trở lại màn hình chính
+        Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);  // Xóa ngăn xếp hoạt động
+        startActivity(intent);
+        finish();
     }
-
-    @Override
-    public void onPaymentSuccess(String s) {
-        Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onPaymentError(int i, String s) {
-
-        Toast.makeText(this, "Payment Cancel", Toast.LENGTH_SHORT).show();
-    }
-
 }

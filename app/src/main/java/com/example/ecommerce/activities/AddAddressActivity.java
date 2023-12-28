@@ -54,6 +54,8 @@ public class AddAddressActivity extends AppCompatActivity {
         phoneNumber = findViewById(R.id.ad_phone);
         postalCode = findViewById(R.id.ad_code);
         addAddressBtn = findViewById(R.id.add_address_btn);
+
+
         addAddressBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
